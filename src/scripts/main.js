@@ -1,26 +1,21 @@
 'use strict';
 
 function sortTableBody(tBody, column) {
-  const rows = [...tBody.rows];
+  const sortedRows = [...tBody.rows].sort((rowA, rowB) => {
+    if (column < 2) {
+      const stringA = rowA.cells[column].textContent;
+      const stringB = rowB.cells[column].textContent;
 
-  const data = extractData(rows).sort((rowA, rowB) => {
-    return typeof rowA[column] === 'string'
-      ? rowA[column].localeCompare(rowB[column])
-      : rowA[column] - rowB[column];
+      return stringA.localeCompare(stringB);
+    }
+
+    const numA = rowA.cells[column].textContent.replace(/[^0-9.-]+/g, '');
+    const numB = rowB.cells[column].textContent.replace(/[^0-9.-]+/g, '');
+
+    return numA - numB;
   });
 
-  for (let i = data.length - 1; i >= 0; i--) {
-    tBody.prepend(rows.find((r) => r.cells[0].textContent === data[i][0]));
-  }
-}
-
-function extractData(body) {
-  return body.map((row) => [
-    row.cells[0].textContent,
-    row.cells[1].textContent,
-    row.cells[2].textContent,
-    +row.cells[3].textContent.slice(1).replaceAll(',', '') || 0,
-  ]);
+  tBody.append(...sortedRows);
 }
 
 const table = document.querySelector('table');
